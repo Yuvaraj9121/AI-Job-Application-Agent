@@ -144,3 +144,4 @@ def test_auto_search_uses_websearch_when_key_is_configured(monkeypatch):
     jobs, source = search.search_jobs("Python Developer", location="Hyderabad")
     assert jobs and jobs[0]["source"] == "linkedin-websearch"
     assert "tavily_websearch" in source
+\n\ndef test_experience_matching():\n    assert search._experience_matches({"experience_required": "Fresher / 0 years"}, "fresher")\n    assert search._experience_matches({"experience_required": "0-1 years"}, "0-1")\n    assert not search._experience_matches({"experience_required": "2-3 years"}, "0-1")\n    assert not search._experience_matches({"experience_required": "5+ years"}, "0-1")\n    assert search._experience_matches({"experience_required": ""}, "0-1")\n\n\ndef test_experience_search_suffix():\n    assert "0-1 years" in search._experience_search_suffix("0-1")\n    assert "fresher" in search._experience_search_suffix("fresher")\n
