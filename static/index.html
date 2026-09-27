@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Job Application Agent</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f4f7fb;
+    color: #172033;
+}
+
+.container {
+    max-width: 1100px;
+    margin: auto;
+    padding: 30px 20px 60px;
+}
+
+.hero {
+    background: linear-gradient(135deg, #172554, #2563eb);
+    color: white;
+    padding: 35px;
+    border-radius: 20px;
+    margin-bottom: 25px;
+}
+
+.hero h1 {
+    margin: 0 0 10px;
+    font-size: 36px;
+}
+
+.hero p {
+    margin: 0;
+    line-height: 1.6;
+}
+
+.card {
+    background: white;
+    border-radius: 18px;
+    padding: 25px;
+    margin-bottom: 20px;
+    box-shadow: 0 5px 20px rgba(0,0,0,.06);
+}
+
+h2 {
+    margin-top: 0;
+}
+
+.muted {
+    color: #667085;
+}
+
+.upload-box {
+    border: 2px dashed #93c5fd;
+    border-radius: 15px;
+    padding: 25px;
+    text-align: center;
+    background: #f8fbff;
+}
+
+input[type="file"] {
+    width: 100%;
+    padding: 12px;
+    margin: 15px 0;
+    border: 1px solid #d0d5dd;
+    border-radius: 10px;
+    background: white;
+}
+
+input[type="text"] {
+    width: 100%;
+    padding: 13px;
+    border: 1px solid #d0d5dd;
+    border-radius: 10px;
+    font-size: 15px;
+}
+
+.row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 220px auto;
+    gap: 12px;
+    align-items: end;
+}
+
+label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 7px;
+}
+
+button {
+    border: none;
+    border-radius: 10px;
+    padding: 13px 18px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.primary {
+    background: #2563eb;
+    color: white;
+}
+
+.primary:hover {
+    background: #1d4ed8;
+}
+
+.primary:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+}
+
+.status {
+    margin-top: 15px;
+    padding: 14px;
+    border-radius: 10px;
+    background: #f2f4f7;
+}
+
+.success {
+    background: #ecfdf3;
+    color: #067647;
+}
+
+.error {
+    background: #fef3f2;
+    color: #b42318;
+}
+
+.warning {
+    background: #fffaeb;
+    color: #b54708;
+}
+
+.skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 15px;
+}
+
+.skill {
+    background: #ecfdf3;
+    color: #067647;
+    border: 1px solid #a6f4c5;
+    padding: 6px 10px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.jobs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+}
+
+.job {
+    border: 1px solid #e4e7ec;
+    border-radius: 15px;
+    padding: 20px;
+}
+
+.job h3 {
+    margin-top: 0;
+}
+
+.match {
+    padding: 12px;
+    border-radius: 10px;
+    margin: 15px 0;
+}
+
+.match-good {
+    background: #ecfdf3;
+    color: #067647;
+}
+
+.match-bad {
+    background: #fef3f2;
+    color: #b42318;
+}
+
+.apply-btn {
+    width: 100%;
+    margin-top: 10px;
+}
+
+@media(max-width: 800px) {
+    .row,
+    .jobs {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="hero">
+        <h1>AI Job Application Agent</h1>
+        <p>
+            Upload your resume, search for jobs and let AI compare
+            each job with your verified resume skills.
+        </p>
+        <p style="margin-top:10px">
+            <strong>Rule: 2 or more matched skills = Application Candidate</strong>
+        </p>
+    </div>
+
+
+    <!-- RESUME -->
+    <div class="card">
+
+        <h2>1. Upload Your Resume</h2>
+
+        <p class="muted">
+            Your resume is the source of truth. The system will not invent qualifications.
+        </p>
+
+        <div class="upload-box">
+
+            <strong>Select your PDF resume</strong>
+
+            <input
+                id="resumeFile"
+                type="file"
+                accept=".pdf"
+            >
+
+            <div id="fileName" class="muted">
+                No file selected
+            </div>
+
+            <button
+                id="uploadButton"
+                class="primary"
+                disabled
+                type="button"
+                style="margin-top:15px"
+            >
+                Upload & Read Resume
+            </button>
+
+            <div id="resumeStatus"></div>
+
+        </div>
+
+        <div id="profile"></div>
+
+    </div>
+
+
+    <!-- SEARCH -->
+    <div class="card">
+
+        <h2>2. Search Jobs</h2>
+
+        <div class="row">
+
+            <div>
+                <label for="jobRole">Job Role / Keywords</label>
+
+                <input
+                    id="jobRole"
+                    type="text"
+                    placeholder="Python Developer"
+                >
+            </div>
+
+            <div>
+                <label for="location">Location</label>
+
+                <input
+                    id="location"
+                    type="text"
+                    placeholder="Hyderabad"
+                >
+            </div>
+
+            <div>
+                <label for="source">Job Source</label>
+                <select id="source" style="width:100%;padding:13px;border:1px solid #d0d5dd;border-radius:10px;font-size:15px;background:white">
+                    <option value="auto">All Sources</option>
+                    <option value="linkedin">LinkedIn</option>
+                    <option value="naukri">Naukri</option>
+                    <option value="indeed">Indeed</option>
+                    <option value="greenhouse">Greenhouse</option>
+                    <option value="lever">Lever</option>
+                    <option value="workday">Workday</option>
+                    <option value="company-careers">Company Careers</option>
+                </select>
+            </div>
+
+            <button
+                id="searchButton"
+                class="primary"
+                type="button"
+            >
+                🔎 Search Jobs
+            </button>
+
+        </div>
+
+        <div id="searchStatus"></div>
+
+    </div>
+
+
+    <!-- RESULTS -->
+    <div class="card">
+
+        <h2>3. AI Matched Jobs</h2>
+
+        <div id="jobs">
+            <p class="muted">
+                Upload your resume and search for a job.
+            </p>
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+console.log("AI Job Application Agent loaded");
+
+
+const resumeFile = document.getElementById("resumeFile");
+const uploadButton = document.getElementById("uploadButton");
+const fileName = document.getElementById("fileName");
+const resumeStatus = document.getElementById("resumeStatus");
+const profileBox = document.getElementById("profile");
+
+const searchButton = document.getElementById("searchButton");
+const searchStatus = document.getElementById("searchStatus");
+const jobsBox = document.getElementById("jobs");
+
+
+let resumeLoaded = false;
+let currentJobs = [];
+
+
+/* -------------------------------------------------
+   FILE SELECT
+------------------------------------------------- */
+
+resumeFile.addEventListener("change", function () {
+
+    console.log("File selected");
+
+    const file = resumeFile.files[0];
+
+    if (!file) {
+        uploadButton.disabled = true;
+        fileName.textContent = "No file selected";
+        return;
+    }
+
+    console.log("Selected:", file.name);
+    console.log("Type:", file.type);
+    console.log("Size:", file.size);
+
+    fileName.textContent = file.name;
+
+    if (!file.name.toLowerCase().endsWith(".pdf")) {
+
+        resumeStatus.className = "status error";
+
+        resumeStatus.textContent =
+            "Please select a PDF resume.";
+
+        uploadButton.disabled = true;
+
+        return;
+    }
+
+    uploadButton.disabled = false;
+
+    resumeStatus.className = "status";
+
+    resumeStatus.textContent =
+        "PDF selected. Click 'Upload & Read Resume'.";
+
+});
+
+
+/* -------------------------------------------------
+   UPLOAD RESUME
+------------------------------------------------- */
+
+uploadButton.addEventListener("click", async function () {
+
+    const file = resumeFile.files[0];
+
+    if (!file) {
+        return;
+    }
+
+    console.log("Starting upload:", file.name);
+
+    uploadButton.disabled = true;
+
+    uploadButton.textContent = "Reading Resume...";
+
+    resumeStatus.className = "status";
+
+    resumeStatus.textContent =
+        "Uploading your PDF and extracting your resume information...";
+
+
+    const formData = new FormData();
+
+    formData.append("file", file);
+
+
+    try {
+
+        const response = await fetch(
+            "/api/profile/upload",
+            {
+                method: "POST",
+                body: formData
+            }
+        );
+
+
+        console.log(
+            "Upload HTTP status:",
+            response.status
+        );
+
+
+        const text = await response.text();
+
+        console.log(
+            "Server response:",
+            text
+        );
+
+
+        let data;
+
+        try {
+
+            data = JSON.parse(text);
+
+        } catch {
+
+            throw new Error(
+                "Server returned an invalid response."
+            );
+
+        }
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.detail ||
+                "Resume upload failed."
+            );
+
+        }
+
+
+        resumeLoaded = true;
+
+
+        resumeStatus.className =
+            "status success";
+
+
+        resumeStatus.innerHTML =
+            "<strong>✓ Resume verified successfully</strong><br>" +
+            "The AI can now use this resume for job matching.";
+
+
+        profileBox.innerHTML = `
+
+            <div class="status success">
+
+                <strong>
+                    ${escapeHtml(data.name || "Candidate")}
+                </strong>
+
+                <br>
+
+                ${escapeHtml(data.email || "")}
+
+                <br>
+
+                ${escapeHtml(data.phone || "")}
+
+                <div class="skills">
+
+                    ${(data.skills || [])
+                        .map(skill =>
+                            `<span class="skill">
+                                ${escapeHtml(skill)}
+                             </span>`
+                        )
+                        .join("")
+                    }
+
+                </div>
+
+            </div>
+
+        `;
+
+
+        console.log(
+            "Resume uploaded successfully."
+        );
+
+        console.log(
+            "Detected skills:",
+            data.skills
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Resume upload error:",
+            error
+        );
+
+
+        resumeLoaded = false;
+
+
+        resumeStatus.className =
+            "status error";
+
+
+        resumeStatus.innerHTML =
+            "<strong>Resume upload failed</strong><br>" +
+            escapeHtml(error.message);
+
+
+    } finally {
+
+        uploadButton.disabled = false;
+
+        uploadButton.textContent =
+            "Upload & Read Resume";
+
+    }
+
+});
+
+
+/* -------------------------------------------------
+   SEARCH JOBS
+------------------------------------------------- */
+
+searchButton.addEventListener("click", async function () {
+
+    const role =
+        document.getElementById("jobRole").value.trim();
+
+    const location =
+        document.getElementById("location").value.trim();
+
+    const source =
+        document.getElementById("source").value;
+
+
+    if (!resumeLoaded) {
+
+        searchStatus.className =
+            "status warning";
+
+        searchStatus.textContent =
+            "Please upload and verify your resume first.";
+
+        return;
+
+    }
+
+
+    if (!role) {
+
+        searchStatus.className =
+            "status warning";
+
+        searchStatus.textContent =
+            "Please enter a job role.";
+
+        return;
+
+    }
+
+
+    searchButton.disabled = true;
+
+    searchButton.textContent =
+        "Searching with AI...";
+
+
+    searchStatus.className =
+        "status";
+
+    searchStatus.textContent =
+        "Searching jobs and comparing them with your resume...";
+
+
+    try {
+
+        const url =
+            "/api/search?query=" +
+            encodeURIComponent(role) +
+            "&location=" +
+            encodeURIComponent(location) +
+            "&source=" +
+            encodeURIComponent(source);
+
+
+        const response =
+            await fetch(url);
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.detail ||
+                "Job search failed."
+            );
+
+        }
+
+
+        currentJobs =
+            data.jobs || [];
+
+
+        renderJobs(currentJobs);
+
+
+        searchStatus.className =
+            "status success";
+
+
+        const sourceText = data.source || "job sources";
+
+        searchStatus.textContent =
+            currentJobs.length +
+            " real jobs analyzed using your resume. Sources: " +
+            sourceText;
+
+
+    } catch (error) {
+
+        console.error(error);
+
+        searchStatus.className =
+            "status error";
+
+        searchStatus.textContent =
+            error.message;
+
+    } finally {
+
+        searchButton.disabled = false;
+
+        searchButton.textContent =
+            "🔎 Search Jobs";
+
+    }
+
+});
+
+
+/* -------------------------------------------------
+   RENDER JOBS
+------------------------------------------------- */
+
+function renderJobs(jobs) {
+
+    if (!jobs.length) {
+
+        jobsBox.innerHTML = `
+            <div class="status">
+                No real jobs were returned by the configured job feeds.
+                Check the source status above and try a broader search.
+            </div>
+        `;
+
+        return;
+    }
+
+
+    jobsBox.innerHTML =
+        '<div class="jobs">' +
+
+        jobs.map((job, index) => {
+
+            const matched =
+                job.matched_skills || [];
+
+            const count =
+                matched.length;
+
+            const eligible =
+                count >= 2;
+
+
+            return `
+
+                <div class="job">
+
+                    <h3>
+                        ${escapeHtml(job.title)}
+                    </h3>
+
+                    <p class="muted">
+                        ${escapeHtml(job.company)}
+                        ·
+                        ${escapeHtml(job.location || "")}
+                    </p>
+
+                    <p class="muted">
+                        <strong>Source:</strong> ${escapeHtml(job.source || "Unknown")}
+                        ${job.published_date ? " · Posted: " + escapeHtml(job.published_date) : ""}
+                    </p>
+
+                    <p>
+                        ${escapeHtml(
+                            job.description || ""
+                        )}
+                    </p>
+
+
+                    <div class="
+                        match
+                        ${eligible
+                            ? "match-good"
+                            : "match-bad"}
+                    ">
+
+                        <strong>
+                            ${count}
+                            matched skill${count === 1 ? "" : "s"}
+                        </strong>
+
+                        <br>
+
+                        Matched:
+                        ${escapeHtml(
+                            matched.join(", ") ||
+                            "None"
+                        )}
+
+                        <br><br>
+
+                        ${
+                            eligible
+                            ? "✓ APPLICATION CANDIDATE"
+                            : "✕ DO NOT APPLY"
+                        }
+
+                    </div>
+
+
+                    ${
+                        eligible
+
+                        ?
+
+                        `<button
+                            class="primary apply-btn"
+                            onclick="applyJob(${index})"
+                        >
+                            🤖 Apply with AI
+                        </button>`
+
+                        :
+
+                        `<button
+                            class="apply-btn"
+                            disabled
+                        >
+                            ✕ Not eligible — fewer than 2 matches
+                        </button>`
+                    }
+
+
+                    <div
+                        id="job-status-${index}"
+                    ></div>
+
+                </div>
+
+            `;
+
+        }).join("") +
+
+        "</div>";
+}
+
+
+/* -------------------------------------------------
+   APPLY
+------------------------------------------------- */
+
+async function applyJob(index) {
+
+    const job =
+        currentJobs[index];
+
+
+    const statusBox =
+        document.getElementById(
+            "job-status-" + index
+        );
+
+
+    statusBox.className =
+        "status";
+
+    statusBox.textContent =
+        "AI is checking eligibility and preparing the application...";
+
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/jobs/" +
+                encodeURIComponent(job.job_id) +
+                "/apply",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:
+                        JSON.stringify(job)
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.detail ||
+                "Application failed."
+            );
+
+        }
+
+
+        statusBox.className =
+            "status success";
+
+
+        statusBox.innerHTML = `
+
+            <strong>
+                ${escapeHtml(
+                    data.status ||
+                    "Application prepared"
+                )}
+            </strong>
+
+            <br>
+
+            ${escapeHtml(
+                data.reason ||
+                "Application processed."
+            )}
+
+            ${
+                data.source_url
+
+                ?
+
+                `<br><br>
+                 <a
+                    href="${escapeHtml(data.source_url)}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                 >
+                    Open official application page
+                 </a>`
+
+                : ""
+            }
+
+        `;
+
+        // Open only the real URL returned by the job source. The agent never
+        // fabricates a submission confirmation or bypasses login/CAPTCHA.
+        if (data.source_url) {
+            window.open(data.source_url, "_blank", "noopener,noreferrer");
+        }
+
+
+    } catch (error) {
+
+        console.error(error);
+
+        statusBox.className =
+            "status error";
+
+        statusBox.textContent =
+            error.message;
+
+    }
+
+}
+
+
+/* -------------------------------------------------
+   ESCAPE HTML
+------------------------------------------------- */
+
+function escapeHtml(value) {
+
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+}
+
+</script>
+
+</body>
+</html>

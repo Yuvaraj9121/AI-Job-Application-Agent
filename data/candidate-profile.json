@@ -1,0 +1,76 @@
+{
+  "name": "Kudupudi Yuvaraj",
+  "location": "Hyderabad, Telangana, India",
+  "phone": "9121627533",
+  "email": "kudupudiyuvaraj.4@gmail.com",
+  "education": {
+    "degree": "B.Tech in Artificial Intelligence & Data Science",
+    "institution": "Malla Reddy College of Engineering",
+    "year": 2026,
+    "percentage": 62
+  },
+  "summary": "B.Tech graduate in Artificial Intelligence & Data Science with hands-on project experience in Python, SQL, Machine Learning, Deep Learning, and Computer Vision.",
+  "skills": [
+    "Python",
+    "SQL",
+    "JavaScript",
+    "HTML",
+    "CSS",
+    "Machine Learning",
+    "Deep Learning",
+    "CNNs",
+    "Computer Vision",
+    "Image Classification",
+    "Object Detection",
+    "Model Evaluation",
+    "MySQL",
+    "Data Processing",
+    "Querying",
+    "Joins",
+    "Aggregation",
+    "Git",
+    "GitHub",
+    "VS Code",
+    "Streamlit"
+  ],
+  "projects": [
+    {
+      "name": "Automated Road Damage Detection",
+      "technologies": [
+        "Python",
+        "TensorFlow/Keras",
+        "OpenCV",
+        "Streamlit",
+        "Object Detection"
+      ],
+      "description": "Computer-vision pipeline to detect road damage in UAV images."
+    },
+    {
+      "name": "Real and Fake Face Detection",
+      "technologies": [
+        "Python",
+        "TensorFlow/Keras",
+        "EfficientNetB0",
+        "Streamlit",
+        "Image Classification"
+      ],
+      "description": "Image-classification model for real and fake face-image classification."
+    },
+    {
+      "name": "RANK: AI-Assisted APT Detection",
+      "technologies": [
+        "Python",
+        "Machine Learning",
+        "MITRE ATT&CK",
+        "Streamlit"
+      ],
+      "description": "Research-prototype pipeline for detecting persistent attacks in enterprise networks."
+    }
+  ],
+  "certifications": [
+    "Python Certification",
+    "Kaggle - Intro to Machine Learning",
+    "Kaggle - Intro to AI Ethics"
+  ],
+  "experience": []
+}
