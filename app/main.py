@@ -360,7 +360,7 @@ PREFERRED SKILLS:
     return {
         "jobs": results,
         "source": source,
-        "rule": "2 or more verified resume skills",
+        "rule": "2 or more verified resume skills",\n        "experience": experience,
     }
 
 
