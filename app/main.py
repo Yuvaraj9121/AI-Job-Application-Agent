@@ -363,7 +363,7 @@ PREFERRED SKILLS:
         "jobs": results,
         "source": source,
         "rule": "2 or more verified resume skills",
-        "experience": experience,\n        "experience": experience,
+        "experience": experience,
     }
 
 
