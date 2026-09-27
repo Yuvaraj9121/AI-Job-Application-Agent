@@ -243,6 +243,7 @@ def search(
     query: str = "",
     location: str = "",
     source: str = "auto",
+    experience: str = "0-1",
 ):
     if not query.strip():
         raise HTTPException(
@@ -254,6 +255,7 @@ def search(
         query,
         source=source,
         location=location,
+        experience=experience,
     )
 
     resume_skills = agent.profile.get(
@@ -360,7 +362,8 @@ PREFERRED SKILLS:
     return {
         "jobs": results,
         "source": source,
-        "rule": "2 or more verified resume skills",\n        "experience": experience,
+        "rule": "2 or more verified resume skills",
+        "experience": experience,\n        "experience": experience,
     }
 
 
