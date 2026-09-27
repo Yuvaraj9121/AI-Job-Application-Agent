@@ -305,14 +305,14 @@ def _tavily_web_search(
 
     loc = location.strip() or "India"
     source_queries = {
-        "linkedin": f'{query} {loc} jobs site:linkedin.com/jobs',
-        "naukri": f'{query} {loc} jobs site:naukri.com',
-        "indeed": f'{query} {loc} jobs site:indeed.com',
-        "greenhouse": f'{query} {loc} jobs site:greenhouse.io',
-        "lever": f'{query} {loc} jobs site:lever.co',
-        "workday": f'{query} {loc} jobs (site:workdayjobs.com OR site:myworkdayjobs.com)',
+        "linkedin": f'{search_query} {loc} jobs site:linkedin.com/jobs',
+        "naukri": f'{search_query} {loc} jobs site:naukri.com',
+        "indeed": f'{search_query} {loc} jobs site:indeed.com',
+        "greenhouse": f'{search_query} {loc} jobs site:greenhouse.io',
+        "lever": f'{search_query} {loc} jobs site:lever.co',
+        "workday": f'{search_query} {loc} jobs (site:workdayjobs.com OR site:myworkdayjobs.com)',
         "company-careers": (
-            f'{query} {loc} jobs careers '
+            f'{search_query} {loc} jobs careers '
             '-site:linkedin.com -site:naukri.com -site:indeed.com '
             '-site:greenhouse.io -site:lever.co '
             '-site:workdayjobs.com -site:myworkdayjobs.com'
@@ -421,6 +421,59 @@ PROVIDERS = {
     "jobicy": _jobicy,
     "remoteok": _remoteok,
 }
+
+
+def _experience_years_required(job: dict[str, Any]) -> float | None:
+    """Extract a conservative maximum required experience in years.
+
+    Returns None when the listing does not state an experience requirement.
+    """
+    text = normalize(
+        f"{job.get('experience_required', '')} {job.get('title', '')} {job.get('description', '')}"
+    )
+    if not text:
+        return None
+    if re.search(r"\\b(?:fresher|freshers|entry level|graduate|no experience|0 years?)\\b", text):
+        return 0.0
+    match = re.search(r"\\b(0|1|2|3|4|5|6|7|8|9|10)\\s*(?:-|–|to)\\s*(0|1|2|3|4|5|6|7|8|9|10)\\s*years?\\b", text)
+    if match:
+        return float(match.group(2))
+    match = re.search(r"\\b(\\d+(?:\\.\\d+)?)\\s*\\+?\\s*years?\\b", text)
+    if match:
+        return float(match.group(1))
+    return None
+
+
+def _experience_matches(job: dict[str, Any], experience: str) -> bool:
+    experience = (experience or "any").strip().lower()
+    if experience in {"", "any"}:
+        return True
+    years = _experience_years_required(job)
+    if experience == "fresher":
+        return years == 0.0
+    if experience == "0-1":
+        return years is None or years <= 1.0
+    if experience == "1-2":
+        return years is None or 1.0 <= years <= 2.0
+    if experience == "2-3":
+        return years is None or 2.0 <= years <= 3.0
+    if experience == "3-5":
+        return years is None or 3.0 <= years <= 5.0
+    if experience == "5+":
+        return years is not None and years >= 5.0
+    return True
+
+
+def _experience_search_suffix(experience: str) -> str:
+    labels = {
+        "fresher": "fresher entry level graduate",
+        "0-1": "fresher 0-1 years entry level graduate",
+        "1-2": "1-2 years",
+        "2-3": "2-3 years",
+        "3-5": "3-5 years",
+        "5+": "5+ years",
+    }
+    return labels.get((experience or "any").strip().lower(), "")
 
 
 def _location_matches(job: dict[str, Any], location: str) -> bool:
