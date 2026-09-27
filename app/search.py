@@ -290,6 +290,7 @@ def _tavily_web_search(
     query: str,
     location: str = "",
     source_filter: str = "all",
+    experience: str = "any",
 ) -> list[dict[str, Any]]:
     """Search real job pages through Tavily.
 
@@ -304,6 +305,8 @@ def _tavily_web_search(
         raise RuntimeError("TAVILY_API_KEY is not configured")
 
     loc = location.strip() or "India"
+    experience_suffix = _experience_search_suffix(experience)
+    search_query = f"{query} {experience_suffix}".strip()
     source_queries = {
         "linkedin": f'{search_query} {loc} jobs site:linkedin.com/jobs',
         "naukri": f'{search_query} {loc} jobs site:naukri.com',
@@ -433,12 +436,12 @@ def _experience_years_required(job: dict[str, Any]) -> float | None:
     )
     if not text:
         return None
-    if re.search(r"\\b(?:fresher|freshers|entry level|graduate|no experience|0 years?)\\b", text):
+    if re.search(r"\b(?:fresher|freshers|entry level|graduate|no experience|0 years?)\\b", text):
         return 0.0
-    match = re.search(r"\\b(0|1|2|3|4|5|6|7|8|9|10)\\s*(?:-|–|to)\\s*(0|1|2|3|4|5|6|7|8|9|10)\\s*years?\\b", text)
+    match = re.search(r"\b(0|1|2|3|4|5|6|7|8|9|10)\\s*(?:-|–|to)\\s*(0|1|2|3|4|5|6|7|8|9|10)\\s*years?\\b", text)
     if match:
         return float(match.group(2))
-    match = re.search(r"\\b(\\d+(?:\\.\\d+)?)\\s*\\+?\\s*years?\\b", text)
+    match = re.search(r"\b(\\d+(?:\\.\\d+)?)\\s*\\+?\\s*years?\\b", text)
     if match:
         return float(match.group(1))
     return None
@@ -518,6 +521,7 @@ def search_jobs(
     query: str,
     source: str = "auto",
     location: str = "",
+    experience: str = "any",
 ) -> tuple[list[dict[str, Any]], str]:
     """
     Search real permitted job feeds.
@@ -583,7 +587,7 @@ def search_jobs(
                     )
                     try:
                         jobs = provider(
-                            client, query, location, source_filter
+                            client, query, location, source_filter, experience
                         )
                     except TypeError:
                         # Backward-compatible with simple test/custom providers
@@ -602,6 +606,7 @@ def search_jobs(
     jobs = [
         job for job in all_jobs
         if _location_matches(job, location)
+        and _experience_matches(job, experience)
     ]
     jobs = _deduplicate(jobs)
 
