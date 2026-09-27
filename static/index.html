@@ -84,7 +84,7 @@ input[type="text"] {
 
 .row {
     display: grid;
-    grid-template-columns: 1fr 1fr 220px auto;
+    grid-template-columns: 1fr 1fr 220px 180px auto;
     gap: 12px;
     align-items: end;
 }
@@ -285,6 +285,19 @@ button {
                     type="text"
                     placeholder="Hyderabad"
                 >
+            </div>
+
+            <div>
+                <label for="experience">Experience</label>
+                <select id="experience" style="width:100%;padding:13px;border:1px solid #d0d5dd;border-radius:10px;font-size:15px;background:white">
+                    <option value="0-1" selected>Fresher / 0–1 years</option>
+                    <option value="fresher">Fresher only</option>
+                    <option value="any">Any Experience</option>
+                    <option value="1-2">1–2 years</option>
+                    <option value="2-3">2–3 years</option>
+                    <option value="3-5">3–5 years</option>
+                    <option value="5+">5+ years</option>
+                </select>
             </div>
 
             <div>
@@ -578,6 +591,9 @@ searchButton.addEventListener("click", async function () {
     const source =
         document.getElementById("source").value;
 
+    const experience =
+        document.getElementById("experience").value;
+
 
     if (!resumeLoaded) {
 
@@ -626,7 +642,9 @@ searchButton.addEventListener("click", async function () {
             "&location=" +
             encodeURIComponent(location) +
             "&source=" +
-            encodeURIComponent(source);
+            encodeURIComponent(source) +
+            "&experience=" +
+            encodeURIComponent(experience);
 
 
         const response =
@@ -734,6 +752,8 @@ function renderJobs(jobs) {
                         ${escapeHtml(job.company)}
                         ·
                         ${escapeHtml(job.location || "")}
+                        ·
+                        ${escapeHtml(job.experience_required || "Experience not stated")}
                     </p>
 
                     <p class="muted">
