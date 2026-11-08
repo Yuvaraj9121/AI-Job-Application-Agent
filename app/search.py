@@ -483,19 +483,27 @@ def _location_matches(job: dict[str, Any], location: str) -> bool:
     if not location.strip():
         return True
 
-    requested = normalize(location)
+    requested_terms = [
+        normalize(part)
+        for part in re.split(r"\s+OR\s+|\|", location, flags=re.I)
+        if part.strip()
+    ]
     job_location = normalize(job.get("location", ""))
     description = normalize(job.get("description", ""))
 
-    if requested in job_location:
+    if any(term and term in job_location for term in requested_terms):
+        return True
+    if any(term and term in description for term in requested_terms):
         return True
 
-    # Remote listings are useful for a location search because the job
-    # may accept applicants from the requested country/region.
-    if "remote" in job_location:
-        return True
+    # Only include remote roles when the listing indicates India eligibility.
+    if "remote" in job_location and (
+        "india" in job_location or "remote india" in description
+        or "india only" in description or "based in india" in description
+    ):
+        return any("remote" in term or "india" in term for term in requested_terms)
 
-    return requested in description
+    return False
 
 
 def _deduplicate(jobs: list[dict[str, Any]]) -> list[dict[str, Any]]:
