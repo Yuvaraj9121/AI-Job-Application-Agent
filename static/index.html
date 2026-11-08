@@ -283,7 +283,8 @@ button {
                 <input
                     id="location"
                     type="text"
-                    placeholder="Hyderabad"
+                    value="Hyderabad OR Remote India"
+                    placeholder="Hyderabad OR Remote India"
                 >
             </div>
 
@@ -303,14 +304,7 @@ button {
             <div>
                 <label for="source">Job Source</label>
                 <select id="source" style="width:100%;padding:13px;border:1px solid #d0d5dd;border-radius:10px;font-size:15px;background:white">
-                    <option value="auto">All Sources</option>
-                    <option value="linkedin">LinkedIn</option>
-                    <option value="naukri">Naukri</option>
-                    <option value="indeed">Indeed</option>
-                    <option value="greenhouse">Greenhouse</option>
-                    <option value="lever">Lever</option>
-                    <option value="workday">Workday</option>
-                    <option value="company-careers">Company Careers</option>
+                    <option value="naukri" selected>Naukri only</option>
                 </select>
             </div>
 
@@ -806,9 +800,9 @@ function renderJobs(jobs) {
 
                         `<button
                             class="primary apply-btn"
-                            onclick="applyJob(${index})"
+                            onclick="prepareJob(${index})"
                         >
-                            🤖 Apply with AI
+                            Review & Prepare
                         </button>`
 
                         :
@@ -840,7 +834,7 @@ function renderJobs(jobs) {
    APPLY
 ------------------------------------------------- */
 
-async function applyJob(index) {
+async function prepareJob(index) {
 
     const job =
         currentJobs[index];
@@ -865,7 +859,7 @@ async function applyJob(index) {
             await fetch(
                 "/api/jobs/" +
                 encodeURIComponent(job.job_id) +
-                "/apply",
+                "/prepare",
                 {
                     method: "POST",
 
@@ -914,6 +908,11 @@ async function applyJob(index) {
                 "Application processed."
             )}
 
+            <br><br>
+            <strong>Cover letter draft:</strong>
+            <pre style="white-space:pre-wrap;font:inherit;background:#f8fafc;padding:12px;border-radius:8px">${escapeHtml(data.cover_letter || "No cover letter generated.")}</pre>
+            <strong>Review required:</strong> Nothing has been submitted. Open the job page and apply manually after checking all details.
+
             ${
                 data.source_url
 
@@ -933,11 +932,6 @@ async function applyJob(index) {
 
         `;
 
-        // Open only the real URL returned by the job source. The agent never
-        // fabricates a submission confirmation or bypasses login/CAPTCHA.
-        if (data.source_url) {
-            window.open(data.source_url, "_blank", "noopener,noreferrer");
-        }
 
 
     } catch (error) {
