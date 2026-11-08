@@ -33,6 +33,7 @@ class Job(BaseModel):
     source_url: str = ""
     experience_required: str = ""
     authorized_provider: bool = False
+    review_approved: bool = False
 
 
 class Batch(BaseModel):
@@ -397,12 +398,9 @@ def apply(
     job_id: str,
     job: Job,
 ):
-    result = agent.submit(
-        job.model_dump()
-    )
-
+    # Backward-compatible route name; this endpoint only prepares a review.
+    result = agent.prepare(job.model_dump())
     result["source_url"] = job.source_url
-
     return result
 
 
@@ -411,9 +409,12 @@ def submit(
     job_id: str,
     job: Job,
 ):
-    return agent.submit(
-        job.model_dump()
-    )
+    if not job.review_approved:
+        raise HTTPException(
+            status_code=409,
+            detail="Explicit review_approved=true is required for this individual application.",
+        )
+    return agent.submit(job.model_dump())
 
 
 # ---------------------------------------------------------
